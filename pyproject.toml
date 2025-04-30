@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zuffer"
+version = "0.1.0"
+authors = [
+  { name="Md Muzaffar", email="mdmuxaffar@gmail.com" },
+]
+description = "A cli utility to automate some tasks on your server"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "click>=8.0.0",
+  "discord.py>=2.0.0",
+  "questionary>=1.0.0",
+  "keyring>=23.0.0",
+]
+
+[project.scripts]
+zuffer = "zuffer.cli:main"
