@@ -1,30 +1,39 @@
 import click
+import discord
 from ..core import auth
+from ..core import clients
 
-@click.command()
+@click.command(name="login")
 def login():
-    if auth.get_token() is not None:
+    if auth.get_token() is not None and auth.get_client_id() is not None:
         click.echo("Logged in successfully!")
         return
     click.echo("Please enter your Discord Bot Token!")
     click.echo("The token will be stored securely in your system's keyring")
     token = click.prompt("Token", hide_input=True)
+    client_id = click.prompt("Client ID")
 
-    if token:
+    if token and client_id:
         auth.store_token(token)
+        auth.store_client_id(client_id)
     else:
-        click.echo("No token entered. Aborting.", err=True) 
+        click.echo("Credentials not provided. Aborting.", err=True) 
 @click.command()
 def reset():
     confirm = click.prompt("Are you sure? This will require you to enter your token again by resetting it in the discord developer portal (y/n)")
     if (confirm == 'y' or confirm == 'Y' or confirm == 'yes' or confirm=='Yes'): 
         if auth.get_token() is None:
-            click.echo("You are not logged in. No token to reset!")
+            click.echo("You are not logged in. Nothing to reset!")
             return
-        if auth.delete_token():
+        if auth.delete():
             click.echo("Token has been successfully reset. You can now use `zuffer login` again!")
         else:
             click.echo("An error occured!")
     else:
         click.echo("Aborting...")
         return
+
+@click.command()
+def refresh():
+    fetcher = clients.GuildFetcher(intents=discord.Intents.all())
+    fetcher.run(auth.get_token())
