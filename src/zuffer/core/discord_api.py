@@ -5,9 +5,14 @@ from . import auth
 from . import clients
 
 channel_id = 1367180480616595586
-def create_channels(type, name, start, end, guild_id, roles):
+def create_channels(type, name, start, end, guild_id):
     intents = discord.Intents.all()
-    client = clients.ChannelCreatorClient(type, name, start, end, guild_id, roles, intents=intents)
+    client = clients.ChannelCreatorClient(type, name, start, end, guild_id, intents=intents)
+    client.run(auth.get_token())
+
+def create_private(type, name, start, end, guild_id, exclude):
+    intents = discord.Intents.all()
+    client = clients.PrivateChannelCreatorClient(type, name, start, end, guild_id, exclude, intents=intents)
     client.run(auth.get_token())
     
 async def send_embed_from_data(channel_id: int, token: str, embed_data: dict):
