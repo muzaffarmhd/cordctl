@@ -1,8 +1,8 @@
 import discord
-import asyncio
 import aiohttp
 from . import auth
 from . import clients
+
 
 channel_id = 1367180480616595586
 def create_channels(type, name, start, end, guild_id):

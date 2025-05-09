@@ -9,7 +9,6 @@ from ..core import discord_api
 @click.option("-name", required=True, help="name of the channel ex: team (it will be created as team-1, team-2)")
 @click.option("-start", required=True, type=int, help="starting number of the channel")
 @click.option("-end", required=True, type=int, help="ending number of the channel")
-# @click.option("--roles", is_flag=True)
 def create_channels(t, name, start, end):
     if utils.authenticate():
         with open(".cache/guilds.json", "r") as f:
