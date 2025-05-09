@@ -247,17 +247,14 @@ class WelcomerClient(discord.Client):
         print('------')
         if not self.config_data:
             print("CRITICAL: Bot started without valid configuration. Welcome messages will not work.")
-            # If simulation is requested but config failed, it won't run due to self.config_data check in on_member_join
 
-        # --- Simulate Member Join ---
         if self.simulate_on_ready and not self.has_simulated_join and self.config_data:
-            self.has_simulated_join = True # Mark simulation as attempted/done
+            self.has_simulated_join = True 
             if not self.guilds:
                 print("[SIMULATION] Bot is not in any guilds. Cannot simulate join.")
                 return
 
-            guild_to_simulate_in = self.guilds[0] # Simulate in the first guild the bot is in
-            # Get the bot's own Member object in that guild
+            guild_to_simulate_in = self.guilds[0] 
             bot_as_member = guild_to_simulate_in.get_member(self.user.id)
 
             if bot_as_member:
@@ -265,14 +262,11 @@ class WelcomerClient(discord.Client):
                       f"in guild '{guild_to_simulate_in.name}' (ID: {guild_to_simulate_in.id})...\n")
                 await self.on_member_join(bot_as_member)
             else:
-                # This case should be rare if self.guilds[0] is valid and self.user.id is the bot's ID
                 print(f"\n[SIMULATION] Could not get bot's Member object in guild "
                       f"'{guild_to_simulate_in.name}' for simulation.\n")
-        # --- End Simulate Member Join ---
 
 
     async def on_member_join(self, member: discord.Member):
-        # Check if this is a simulated call for the bot itself, and if so, print a note
         is_simulation_for_self = (self.simulate_on_ready and member.id == self.user.id)
         if is_simulation_for_self:
             print(f"[SIMULATION] Processing simulated on_member_join for {member.display_name}")
@@ -294,18 +288,14 @@ class WelcomerClient(discord.Client):
             print(f"Error: channel_id '{channel_id_str}' is not a valid integer.")
             return
 
-        # Ensure the welcome channel belongs to the guild the member joined
-        # This is important if the bot is in multiple guilds and shares a config
-        # or if the configured channel_id is for a different guild.
         guild_of_join = member.guild
-        welcome_channel = guild_of_join.get_channel(welcome_channel_id) # More robust: get channel from member's guild
+        welcome_channel = guild_of_join.get_channel(welcome_channel_id) 
 
-        if not welcome_channel: # Fallback to bot's global get_channel if above fails (e.g. DM channel for some reason?)
+        if not welcome_channel: 
              welcome_channel = self.get_channel(welcome_channel_id)
 
 
         if welcome_channel:
-            # Check if welcome_channel is actually in the guild the member joined
             if welcome_channel.guild != guild_of_join:
                 print(f"Warning: Configured welcome channel '{welcome_channel.name}' (ID: {welcome_channel_id}) "
                       f"is not in the guild '{guild_of_join.name}' where {member.display_name} joined. Skipping welcome message for this join.")
@@ -333,7 +323,7 @@ class WelcomerClient(discord.Client):
             print(f"Welcome channel with ID {welcome_channel_id} not found in guild {member.guild.name} or globally for bot.")
 
 
-DEFAULT_CONFIG = { # Unchanged
+DEFAULT_CONFIG = { 
     "image_settings": {
         "width": 700, "height": 250,
         "background_type": "color", "background_color": "#36393f",

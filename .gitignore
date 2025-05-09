@@ -20,10 +20,13 @@ wheels/
 .installed.cfg
 *.egg
 *.json
+.config/
+arial.ttf
 # Virtual Environment
 venv/
 env/
 ENV/
+assets/
 .env
 .venv
 
@@ -35,6 +38,7 @@ ENV/
 .project
 .pydevproject
 .settings/
+*.ttf
 
 # Testing
 .tox/

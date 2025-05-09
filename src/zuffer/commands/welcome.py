@@ -25,8 +25,8 @@ def run_welcomer_bot_command(config_path, simulate_join):
         return
     bot_token = auth.get_token()
     intents = discord.Intents.default()
-    intents.members = True  # Crucial for on_member_join
-    intents.guilds = True   # For guild information, getting channels, guild.me etc.
+    intents.members = True  
+    intents.guilds = True   
 
     try:
         client = WelcomerClient(intents=intents, config_path=config_path, simulate_on_ready=simulate_join)

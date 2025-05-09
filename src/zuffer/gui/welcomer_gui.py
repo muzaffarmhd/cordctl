@@ -4,21 +4,15 @@ import json
 import uuid
 import os
 import shutil
-try:
-    from PIL import Image, ImageTk
-except ImportError:
-    messagebox.showerror("Missing Dependency", "Pillow (PIL) library is required for image backgrounds. Please install it: pip install Pillow")
-    # You might want to exit or disable image functionality if Pillow is not found.
-    # For this example, we'll let it proceed, but image features will fail.
+from PIL import Image, ImageTk
 
-# Default configuration settings
 DEFAULT_CONFIG = {
     "image_settings": {
         "width": 700,
         "height": 250,
-        "background_type": "color",  # "color" or "image"
+        "background_type": "color",  
         "background_color": "#2c2f33",
-        "background_image_path": ""  # Relative path to image in assets folder
+        "background_image_path": ""  
     },
     "discord_settings": {
         "channel_id": "YOUR_CHANNEL_ID_HERE"
@@ -55,7 +49,7 @@ class WelcomeImageConfigurator:
     def __init__(self, master):
         self.master = master
         master.title("Welcome Image Configurator")
-        master.geometry("1200x750") # Slightly increased height for new controls
+        master.geometry("1200x750") 
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -78,20 +72,13 @@ class WelcomeImageConfigurator:
         self.channel_id_var = tk.StringVar(value=self.config["discord_settings"]["channel_id"])
 
         self.current_text_content_var = tk.StringVar()
-        self.current_text_font_size_var = tk.IntVar() # Default value is 0
+        self.current_text_font_size_var = tk.IntVar() 
         self.current_text_color_var = tk.StringVar()
         self.current_text_font_family_var = tk.StringVar()
 
-        # Traces
         self.image_width_var.trace_add("write", self.on_image_settings_change)
         self.image_height_var.trace_add("write", self.on_image_settings_change)
         self.background_type_var.trace_add("write", self.on_background_type_change)
-
-        # BUGFIX: Remove these initial traces. They will be managed by
-        # enable_text_properties_panel and disable_text_properties_panel.
-        # self.current_text_content_var.trace_add("write", self.on_selected_text_property_change)
-        # self.current_text_font_size_var.trace_add("write", self.on_selected_text_property_change)
-        # self.current_text_font_family_var.trace_add("write", self.on_selected_text_property_change)
 
         self.setup_ui()
         self.update_canvas_dimensions()
@@ -309,7 +296,7 @@ class WelcomeImageConfigurator:
 
     def on_canvas_press(self, event):
         self.selected_item_on_canvas = None 
-        self.disable_text_properties_panel() # This now correctly removes traces before setting vars
+        self.disable_text_properties_panel() 
 
         avatar_conf = self.config["avatar_settings"]
         ax, ay, asize = avatar_conf["x"], avatar_conf["y"], avatar_conf["size"]
@@ -325,7 +312,7 @@ class WelcomeImageConfigurator:
                 item_tags = self.canvas.gettags(item_id_on_canvas)
                 if "text_element" in item_tags:
                     for elem_dict in self.config["text_elements"]:
-                        if len(item_tags) > 1 and elem_dict["id"] == item_tags[1]: # Check against second tag (the ID)
+                        if len(item_tags) > 1 and elem_dict["id"] == item_tags[1]: 
                             selected_text_elem = elem_dict
                             break
                     if selected_text_elem:
@@ -335,7 +322,7 @@ class WelcomeImageConfigurator:
                 self.selected_item_on_canvas = selected_text_elem
                 self.drag_data["item_dict"] = selected_text_elem
                 self.drag_data["item_type"] = "text"
-                self.enable_text_properties_panel(selected_text_elem) # This sets vars then adds traces
+                self.enable_text_properties_panel(selected_text_elem) 
 
         if self.drag_data["item_dict"]:
             self.drag_data["x"] = event.x
@@ -359,7 +346,6 @@ class WelcomeImageConfigurator:
                 item_to_move["x"] = max(0, min(item_to_move["x"], img_width - item_size))
                 item_to_move["y"] = max(0, min(item_to_move["y"], img_height - item_size))
             elif self.drag_data["item_type"] == "text":
-                # Basic boundary check for text, can be improved based on text bbox
                 item_to_move["x"] = max(0, min(item_to_move["x"], img_width - 20)) 
                 item_to_move["y"] = max(0, min(item_to_move["y"], img_height - 10))
 
@@ -383,8 +369,8 @@ class WelcomeImageConfigurator:
         new_text_elem = {"id": new_id, "content": "New Text", "x": default_x, "y": default_y,
                          "color": "#ffffff", "font_size": 20, "font_family": "Arial"}
         self.config["text_elements"].append(new_text_elem)
-        self.selected_item_on_canvas = new_text_elem # Select the new element
-        self.enable_text_properties_panel(new_text_elem) # Populate and enable panel for it
+        self.selected_item_on_canvas = new_text_elem 
+        self.enable_text_properties_panel(new_text_elem) 
         self.redraw_canvas()
 
     def delete_selected_text_element(self):
@@ -413,7 +399,7 @@ class WelcomeImageConfigurator:
         for child in self.text_props_frame.winfo_children():
             if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox, tk.Label)):
                  try: child.config(state=tk.NORMAL)
-                 except tk.TclError: # For Combobox which might use state()
+                 except tk.TclError: 
                     if hasattr(child, 'state') and callable(child.state):
                         child.state(['!disabled'])
         self.delete_text_button.config(state=tk.NORMAL)
@@ -425,7 +411,7 @@ class WelcomeImageConfigurator:
     def disable_text_properties_panel(self):
         if hasattr(self, "_text_content_trace_id"):
             self.current_text_content_var.trace_vdelete("w", self._text_content_trace_id)
-            del self._text_content_trace_id # Clean up attribute
+            del self._text_content_trace_id 
         if hasattr(self, "_font_size_trace_id"):
             self.current_text_font_size_var.trace_vdelete("w", self._font_size_trace_id)
             del self._font_size_trace_id
@@ -442,7 +428,7 @@ class WelcomeImageConfigurator:
         for child in self.text_props_frame.winfo_children():
             if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox)):
                 try: child.config(state=tk.DISABLED)
-                except tk.TclError: # For Combobox
+                except tk.TclError: 
                      if hasattr(child, 'state') and callable(child.state):
                          child.state(['disabled'])
         self.delete_text_button.config(state=tk.DISABLED)
@@ -573,7 +559,7 @@ class WelcomeImageConfigurator:
             self.channel_id_var.set(self.config.get("discord_settings", {}).get("channel_id", DEFAULT_CONFIG["discord_settings"]["channel_id"]))
 
             self.selected_item_on_canvas = None
-            self.disable_text_properties_panel() # This will also clear UI vars for text properties
+            self.disable_text_properties_panel() 
             self.update_canvas_dimensions()
             self.update_bg_controls_state() 
             self.redraw_canvas()
@@ -583,16 +569,3 @@ class WelcomeImageConfigurator:
             messagebox.showerror("Error", f"Failed to parse configuration file (invalid JSON): {e}")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load configuration: {e}")
-
-
-# if __name__ == '__main__':
-#     root = tk.Tk()
-#     try:
-#         Image.new("RGB", (1,1)) 
-#     except NameError: 
-#         root.destroy()
-#         print("Exiting: Pillow (PIL) library is not installed or failed to import. Run 'pip install Pillow'")
-#         exit()
-        
-#     app = WelcomeImageConfigurator(root)
-#     root.mainloop()
