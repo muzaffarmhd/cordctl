@@ -86,7 +86,6 @@ class PrivateChannelCreatorClient(discord.Client):
                 guild.default_role: discord.PermissionOverwrite(read_messages=False, connect=False),
                 role: discord.PermissionOverwrite(read_messages=True, send_messages=True, connect=True, speak=True)
             }
-            # Apply exclude roles: they should be able to see these private channels too
             for exclude_role_obj in exclude_roles_objects:
                 overwrites[exclude_role_obj] = discord.PermissionOverwrite(read_messages=True, send_messages=True, connect=True, speak=True)
 
@@ -215,13 +214,13 @@ def create_welcome_image_from_config(member_avatar_url, member_username, config_
     return img_byte_arr
 
 class WelcomerClient(discord.Client):
-    def __init__(self, *, intents: discord.Intents, config_path: str, simulate_on_ready: bool = False): # Added simulate_on_ready
+    def __init__(self, *, intents: discord.Intents, config_path: str, simulate_on_ready: bool = False): 
         super().__init__(intents=intents)
         self.config_path = os.path.abspath(config_path)
         self.config_dir_path = os.path.dirname(self.config_path)
         self.config_data = None
-        self.simulate_on_ready = simulate_on_ready # Store the flag
-        self.has_simulated_join = False # Ensure simulation happens only once
+        self.simulate_on_ready = simulate_on_ready 
+        self.has_simulated_join = False 
         self.load_bot_config()
 
     def load_bot_config(self):
