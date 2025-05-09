@@ -2,7 +2,7 @@ import click
 from .commands import login #, login, config, create_rooms #, token
 from .commands import create_channels
 from .commands import embed
-from .commands import welcome
+from .commands import welcome, list
 
 @click.group()
 @click.version_option(package_name="zuffer") 
@@ -18,3 +18,4 @@ main.add_command(embed.embed)
 main.add_command(create_channels.create_channels)
 main.add_command(create_channels.create_private)
 main.add_command(welcome.welcome_group)
+main.add_command(list.list_command)

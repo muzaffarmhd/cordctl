@@ -3,7 +3,7 @@ import discord
 from ..core import auth
 from ..core import clients
 
-@click.command(name="login")
+@click.command(name="login", help="Setup your bot with token and client ID")
 def login():
     if auth.get_token() is not None and auth.get_client_id() is not None:
         click.echo("Logged in successfully!")
@@ -18,7 +18,7 @@ def login():
         auth.store_client_id(client_id)
     else:
         click.echo("Credentials not provided. Aborting.", err=True) 
-@click.command()
+@click.command(name="reset", help="Reset your bot credentials, you might need to provide your bot token again")
 def reset():
     confirm = click.prompt("Are you sure? This will require you to enter your token again by resetting it in the discord developer portal (y/n)")
     if (confirm == 'y' or confirm == 'Y' or confirm == 'yes' or confirm=='Yes'): 
@@ -33,7 +33,7 @@ def reset():
         click.echo("Aborting...")
         return
 
-@click.command()
+@click.command(name="refresh", help="Refresh the fetched cache")
 def refresh():
     fetcher = clients.GuildFetcher(intents=discord.Intents.all())
     fetcher.run(auth.get_token())

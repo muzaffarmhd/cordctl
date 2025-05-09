@@ -12,7 +12,7 @@ def build_embed_gui(callback):
     app = EmbedBuilder(callback)
     app.mainloop()
 
-@click.command(name="embed")
+@click.command(name="embed", help="Send an embed message using the embed builder!")
 def embed():
     channel_id = click.prompt("Enter the channel ID you want to send the embed in: ")
     def on_submit(embed_data):
