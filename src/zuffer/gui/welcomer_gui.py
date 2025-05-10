@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog, messagebox
-import tkinter.font as tkFont # Added
+import tkinter.font as tkFont 
 import json
 import uuid
 import os
@@ -152,7 +152,7 @@ class WelcomeImageConfigurator:
         if bg_type == "color":
             self.bg_color_preview.config(state=tk.NORMAL)
             self.bg_color_choose_btn.config(state=tk.NORMAL)
-            self.bg_image_path_label.config(state=tk.DISABLED) # Use config for ttk.Label state
+            self.bg_image_path_label.config(state=tk.DISABLED) 
             self.bg_image_browse_btn.config(state=tk.DISABLED)
         elif bg_type == "image":
             self.bg_color_preview.config(state=tk.DISABLED)
@@ -174,7 +174,7 @@ class WelcomeImageConfigurator:
             if filepath and os.path.exists(filepath):
                 self.image_bg_image_path_abs_var.set(filepath)
                 self.bg_pil_image = Image.open(filepath)
-                self.config["image_settings"]["background_image_path"] = "" # Relative path set on save
+                self.config["image_settings"]["background_image_path"] = "" 
                 self.redraw_canvas()
         except Exception as e:
             messagebox.showerror("Error", f"Could not load image: {e}")
@@ -213,7 +213,7 @@ class WelcomeImageConfigurator:
             current_avatar_conf = self.config["avatar_settings"]
             default_size = DEFAULT_CONFIG["avatar_settings"]["size"]
 
-            if new_size <= 0: # Ensure positive size
+            if new_size <= 0: 
                 self.avatar_size_var.set(current_avatar_conf.get("size", default_size))
                 return
 
@@ -222,7 +222,6 @@ class WelcomeImageConfigurator:
             img_width = self.config["image_settings"]["width"]
             img_height = self.config["image_settings"]["height"]
 
-            # Clamp position if new size makes it go out of bounds
             # current_avatar_conf["x"] = max(0, min(current_avatar_conf["x"], img_width - new_size if img_width > new_size else 0))
             # current_avatar_conf["y"] = max(0, min(current_avatar_conf["y"], img_height - new_size if img_height > new_size else 0))
             clamped_x = max(0, min(current_avatar_conf["x"], img_width - new_size if img_width > new_size else 0))
@@ -230,14 +229,13 @@ class WelcomeImageConfigurator:
             current_avatar_conf["x"] = int(round(clamped_x))
             current_avatar_conf["y"] = int(round(clamped_y))
 
-            # If avatar is larger than canvas, its (x,y) should be 0
             if new_size >= img_width: current_avatar_conf["x"] = 0
             if new_size >= img_height: current_avatar_conf["y"] = 0
 
             self.redraw_canvas()
-        except tk.TclError: # Handles non-integer input in Entry
+        except tk.TclError: 
             self.avatar_size_var.set(self.config["avatar_settings"].get("size", DEFAULT_CONFIG["avatar_settings"]["size"]))
-        except Exception as e: # General catch, though TclError should cover most input issues
+        except Exception as e: 
             print(f"Error in on_avatar_settings_change: {e}")
             self.avatar_size_var.set(self.config["avatar_settings"].get("size", DEFAULT_CONFIG["avatar_settings"]["size"]))
 
@@ -285,21 +283,18 @@ class WelcomeImageConfigurator:
             button.grid(row=row, column=col, padx=2, pady=2, sticky=tk.EW)
             self.alignment_buttons[text] = button
             col += 1
-            if col >= 3:  # 3 buttons per row
+            if col >= 3:  
                 col = 0
                 row += 1
 
-        for c_idx in range(3): # Ensure columns have equal weight for expansion
+        for c_idx in range(3): 
             self.alignment_frame.columnconfigure(c_idx, weight=1)
 
     def enable_disable_alignment_buttons(self, enable=True):
         state_cmd = '!disabled' if enable else 'disabled'
-        # state_tk = tk.NORMAL if enable else tk.DISABLED # Not needed if all are ttk.Button
         for button in self.alignment_buttons.values():
             if isinstance(button, ttk.Button): # Ensure it's a ttk button
                  button.state([state_cmd])
-            # else: # Fallback for non-ttk, if any were mixed
-            #      button.config(state=state_tk)
 
     def _create_file_operations_ui(self, parent):
         frame = ttk.Frame(parent, padding="10")
@@ -315,12 +310,8 @@ class WelcomeImageConfigurator:
                 self.config["image_settings"]["width"] = new_width
                 self.config["image_settings"]["height"] = new_height
                 self.update_canvas_dimensions()
-                # When image size changes, selected item might need position adjustment
-                # This is complex; for now, rely on user to readjust or use alignment.
-                # Dragging will clamp. Avatar size change clamps.
                 self.redraw_canvas()
-        except tk.TclError: # If entry has non-integer
-            # Optionally revert to old values or show error
+        except tk.TclError: 
             pass
 
     def choose_bg_color(self):
@@ -346,10 +337,9 @@ class WelcomeImageConfigurator:
             abs_image_path = self.image_bg_image_path_abs_var.get()
             if abs_image_path and os.path.exists(abs_image_path):
                 try:
-                    # Ensure self.bg_pil_image is current
                     if not self.bg_pil_image or \
                        (hasattr(self.bg_pil_image, 'fp') and self.bg_pil_image.fp and self.bg_pil_image.fp.name != abs_image_path) or \
-                       (not hasattr(self.bg_pil_image, 'fp')): # If image was loaded from bytes or similar without fp
+                       (not hasattr(self.bg_pil_image, 'fp')): 
                         self.bg_pil_image = Image.open(abs_image_path)
 
                     pil_image_resized = self.bg_pil_image.resize((width, height), Image.Resampling.LANCZOS)
@@ -367,7 +357,6 @@ class WelcomeImageConfigurator:
         if avatar_conf["visible"]:
             x, y, size = avatar_conf["x"], avatar_conf["y"], avatar_conf["size"]
             self.canvas.create_oval(x, y, x + size, y + size, fill="gray", outline="darkgray", tags="avatar")
-            # Highlight for avatar
             if self.selected_item_on_canvas is avatar_conf and self.current_selection_type == "avatar":
                  self.canvas.create_oval(x-2, y-2, x + size+2, y + size+2, outline="cyan", width=2, tags="selection_highlight")
 
@@ -376,7 +365,6 @@ class WelcomeImageConfigurator:
                                  fill=text_elem["color"],
                                  font=(text_elem["font_family"], text_elem["font_size"]),
                                  anchor=tk.NW, tags=("text_element", text_elem["id"]))
-            # Highlight for text
             if self.selected_item_on_canvas is text_elem and self.current_selection_type == "text":
                 bbox = self.canvas.bbox(text_id_on_canvas)
                 if bbox: self.canvas.create_rectangle(bbox, outline="cyan", width=2, tags="selection_highlight")
@@ -389,7 +377,6 @@ class WelcomeImageConfigurator:
         self.current_selection_type = None
         self.drag_data = {"x": 0, "y": 0, "item_dict": None, "item_type": None}
 
-        # Disable text panel; re-enabled if text is selected.
         self.disable_text_properties_panel()
 
         avatar_conf = self.config["avatar_settings"]
@@ -397,21 +384,18 @@ class WelcomeImageConfigurator:
         center_x, center_y, radius = ax + asize / 2, ay + asize / 2, asize / 2
 
         clicked_on_item = False
-        # Check avatar first (usually drawn below text, but logically a distinct object type)
         if avatar_conf["visible"] and (event.x - center_x)**2 + (event.y - center_y)**2 <= radius**2 :
             self.selected_item_on_canvas = avatar_conf
             self.current_selection_type = "avatar"
-            self.drag_data["item_dict"] = avatar_conf # This is a reference to the dict in self.config
+            self.drag_data["item_dict"] = avatar_conf 
             self.drag_data["item_type"] = "avatar"
             clicked_on_item = True
-        else: # Check text elements
-            # Find items at click position, search from top-most
+        else: 
             overlapping_ids = self.canvas.find_overlapping(event.x-1, event.y-1, event.x+1, event.y+1)
             selected_text_elem = None
             for item_id_on_canvas in reversed(overlapping_ids):
                 item_tags = self.canvas.gettags(item_id_on_canvas)
                 if "text_element" in item_tags:
-                    # The unique ID is assumed to be the second tag
                     text_elem_id_from_tag = item_tags[1] if len(item_tags) > 1 else None
                     if text_elem_id_from_tag:
                         for elem_dict in self.config["text_elements"]:
@@ -424,7 +408,7 @@ class WelcomeImageConfigurator:
             if selected_text_elem:
                 self.selected_item_on_canvas = selected_text_elem
                 self.current_selection_type = "text"
-                self.drag_data["item_dict"] = selected_text_elem # Reference to dict in self.config
+                self.drag_data["item_dict"] = selected_text_elem 
                 self.drag_data["item_type"] = "text"
                 self.enable_text_properties_panel(selected_text_elem)
                 clicked_on_item = True
@@ -433,19 +417,19 @@ class WelcomeImageConfigurator:
             self.drag_data["x"] = event.x
             self.drag_data["y"] = event.y
             self.enable_disable_alignment_buttons(True)
-        else: # Clicked on empty space
-            self.disable_text_properties_panel() # Ensure it's disabled
+        else: 
+            self.disable_text_properties_panel() 
             self.enable_disable_alignment_buttons(False)
 
         self.redraw_canvas()
 
 
     def on_canvas_drag(self, event):
-        if self.drag_data["item_dict"] and self.selected_item_on_canvas: # Ensure consistency
+        if self.drag_data["item_dict"] and self.selected_item_on_canvas: 
             dx = event.x - self.drag_data["x"]
             dy = event.y - self.drag_data["y"]
 
-            item_to_move = self.selected_item_on_canvas # Use the authoritative selected item
+            item_to_move = self.selected_item_on_canvas 
 
             item_to_move["x"] += dx
             item_to_move["y"] += dy
@@ -466,10 +450,7 @@ class WelcomeImageConfigurator:
                 if item_size >= img_height: item_to_move["y"] = 0
 
             elif self.current_selection_type == "text":
-                # For text, x,y is top-left. Allow it to go slightly off if needed for large text.
-                # A better approach would be to use bbox for text clamping.
-                # For now, simple clamping:
-                item_width, item_height = self._get_selected_item_dimensions() # Get current text dimensions
+                item_width, item_height = self._get_selected_item_dimensions() 
                 item_to_move["x"] = max(0, min(item_to_move["x"], img_width - item_width if img_width > item_width else 0))
                 item_to_move["y"] = max(0, min(item_to_move["y"], img_height - item_height if img_height > item_height else 0))
                 if item_width >= img_width: item_to_move["x"] = 0
@@ -481,7 +462,7 @@ class WelcomeImageConfigurator:
             self.redraw_canvas()
 
     def on_canvas_release(self, event):
-        self.drag_data["item_dict"] = None # Keep selected_item_on_canvas
+        self.drag_data["item_dict"] = None 
         self.drag_data["item_type"] = None
 
 
@@ -494,7 +475,6 @@ class WelcomeImageConfigurator:
 
     def add_text_element(self):
         new_id = "text_" + uuid.uuid4().hex[:8]
-        # Slightly offset new elements to avoid perfect stacking
         default_x = 20 + (len(self.config["text_elements"]) % 5) * 10
         default_y = 20 + (len(self.config["text_elements"]) // 5) * 20
         new_text_elem = {"id": new_id, "content": "New Text", "x": default_x, "y": default_y,
@@ -519,7 +499,6 @@ class WelcomeImageConfigurator:
         else: messagebox.showinfo("Info", "No text element selected to delete, or selected item is not text.")
 
     def enable_text_properties_panel(self, text_element_dict):
-        # Remove old traces if they exist
         if hasattr(self, "_text_content_trace_id") and self._text_content_trace_id:
             self.current_text_content_var.trace_vdelete("w", self._text_content_trace_id)
         if hasattr(self, "_font_size_trace_id") and self._font_size_trace_id:
@@ -534,20 +513,21 @@ class WelcomeImageConfigurator:
         self.text_color_preview.config(bg=text_element_dict["color"])
 
         for child in self.text_props_frame.winfo_children():
-            if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox, tk.Label)):
-                 try:
-                     if hasattr(child, 'state') and callable(child.state): # ttk widgets
-                         child.state(['!disabled'])
-                     else: # tk widgets
-                         child.config(state=tk.NORMAL)
-                 except tk.TclError: pass # Ignore if widget doesn't support state or already in that state
-        self.delete_text_button.config(state=tk.NORMAL) # Explicitly enable
+            if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox)):
+                try:
+                    child.state(['!disabled'])
+                except tk.TclError:
+                    pass
+            elif isinstance(child, tk.Label):
+                try:
+                    child.config(state=tk.NORMAL)
+                except tk.TclError:
+                    pass
+        self.delete_text_button.config(state=tk.NORMAL) 
 
-        # Add new traces
         self._text_content_trace_id = self.current_text_content_var.trace_add("write", self.on_selected_text_property_change)
         self._font_size_trace_id = self.current_text_font_size_var.trace_add("write", self.on_selected_text_property_change)
         self._font_family_trace_id = self.current_text_font_family_var.trace_add("write", self.on_selected_text_property_change)
-        #debug
         # if text_element_dict and text_element_dict.get("content"):
         #     self.selected_item_on_canvas = text_element_dict
         #     self.current_selection_type = "text"
@@ -565,8 +545,8 @@ class WelcomeImageConfigurator:
             self._font_family_trace_id = None
 
         self.current_text_content_var.set("")
-        try: self.current_text_font_size_var.set(0) # Can cause TclError if var is bad
-        except tk.TclError: self.current_text_font_size_var.set(12) # Default if error
+        try: self.current_text_font_size_var.set(0) #
+        except tk.TclError: self.current_text_font_size_var.set(12) 
         self.current_text_color_var.set("#000000")
         self.current_text_font_family_var.set("Arial")
         self.text_color_preview.config(bg="lightgray")
@@ -574,20 +554,20 @@ class WelcomeImageConfigurator:
         for child in self.text_props_frame.winfo_children():
             if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox)):
                 try:
-                     if hasattr(child, 'state') and callable(child.state): # ttk widgets
+                     if hasattr(child, 'state') and callable(child.state): 
                          child.state(['disabled'])
-                     else: # tk widgets
+                     else: 
                          child.config(state=tk.DISABLED)
                 except tk.TclError: pass
-        self.delete_text_button.config(state=tk.DISABLED) # Explicitly disable
+        self.delete_text_button.config(state=tk.DISABLED) 
 
     def on_selected_text_property_change(self, *args):
         if self.selected_item_on_canvas and self.current_selection_type == "text":
             try:
                 font_size = self.current_text_font_size_var.get()
-                if font_size <= 0: font_size = 1 # Ensure positive font size
-            except tk.TclError: # If entry is invalid (e.g. empty)
-                font_size = self.selected_item_on_canvas.get("font_size", 12) # Fallback
+                if font_size <= 0: font_size = 1 
+            except tk.TclError: 
+                font_size = self.selected_item_on_canvas.get("font_size", 12) 
 
             self.selected_item_on_canvas["content"] = self.current_text_content_var.get()
             self.selected_item_on_canvas["font_size"] = font_size
@@ -616,15 +596,14 @@ class WelcomeImageConfigurator:
             return size, size
         elif self.current_selection_type == "text":
             font_size, font_family, content = item_dict["font_size"], item_dict["font_family"], item_dict["content"]
-            # Prioritize UI values if text item is selected and panel is active
             if self.selected_item_on_canvas is item_dict and \
-               hasattr(self, 'current_text_font_size_var'): # Check if panel is initialized
+               hasattr(self, 'current_text_font_size_var'): 
                 try:
                     ui_font_size = self.current_text_font_size_var.get()
                     if ui_font_size > 0: font_size = ui_font_size
                     font_family = self.current_text_font_family_var.get()
                     content = self.current_text_content_var.get()
-                except tk.TclError: pass # Use dict values if UI ones are invalid (e.g., empty string for int)
+                except tk.TclError: pass 
 
             try:
                 font = tkFont.Font(family=font_family, size=font_size)
@@ -633,7 +612,7 @@ class WelcomeImageConfigurator:
                 return width, height
             except Exception as e:
                 print(f"Error measuring text in _get_selected_item_dimensions: {e}")
-                return 20, 10 # Fallback dimensions
+                return 20, 10 
         return 0, 0
 
     # def _get_selected_item_dimensions(self):
@@ -688,18 +667,17 @@ class WelcomeImageConfigurator:
     def _align_item(self, set_x=None, set_y=None, center_h=False, center_v=False, align_r=False, align_b=False):
         if not self.selected_item_on_canvas: return
 
-        item_dict = self.selected_item_on_canvas # This is a direct reference to the config dict
+        item_dict = self.selected_item_on_canvas 
         item_width, item_height = self._get_selected_item_dimensions()
 
-        # Prevent division by zero if item dimensions are zero (e.g. empty text)
         if item_width == 0: item_width = 1
         if item_height == 0: item_height = 1
 
         canvas_width = self.config["image_settings"]["width"]
         canvas_height = self.config["image_settings"]["height"]
 
-        new_x = item_dict["x"] # Current x
-        new_y = item_dict["y"] # Current y
+        new_x = item_dict["x"] 
+        new_y = item_dict["y"] 
 
         if set_x is not None: new_x = set_x
         if set_y is not None: new_y = set_y
@@ -739,10 +717,7 @@ class WelcomeImageConfigurator:
 
         self.current_config_file_path = filepath
 
-        # Prepare a copy of config for saving to avoid temporary runtime keys (like _type)
-        config_to_save = self.config.copy() # Shallow copy is enough if _type is not nested
-        # If _type was ever added to avatar_settings or text_elements, clean it here.
-        # Current implementation avoids this by using self.current_selection_type.
+        config_to_save = self.config.copy() 
 
         if config_to_save["image_settings"].get("background_type") == "image":
             original_abs_image_path = self.image_bg_image_path_abs_var.get()
@@ -757,12 +732,10 @@ class WelcomeImageConfigurator:
                 try:
                     if not os.path.exists(destination_path_abs) or not os.path.samefile(original_abs_image_path, destination_path_abs):
                         shutil.copy2(original_abs_image_path, destination_path_abs)
-                    # Save relative path
                     config_to_save["image_settings"]["background_image_path"] = os.path.join("assets", image_filename)
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to copy background image: {e}\nSaving config with current image path setting.")
-                    # config_to_save["image_settings"]["background_image_path"] will retain its current value (likely empty or old)
-            else: # No valid absolute path currently set
+            else: 
                 config_to_save["image_settings"]["background_image_path"] = ""
         else:
             config_to_save["image_settings"]["background_image_path"] = ""
@@ -790,14 +763,12 @@ class WelcomeImageConfigurator:
             with open(filepath, "r") as f:
                 loaded_config = json.load(f)
 
-            # Basic validation
             required_keys = ["image_settings", "text_elements", "avatar_settings", "discord_settings"]
             if not all(k in loaded_config for k in required_keys):
                  messagebox.showerror("Error", "Invalid or incomplete configuration file format."); return
 
-            self.config = loaded_config # Replace current config
+            self.config = loaded_config 
 
-            # Update UI variables from loaded config
             img_settings = self.config.get("image_settings", DEFAULT_CONFIG["image_settings"].copy())
             self.image_width_var.set(img_settings.get("width", DEFAULT_CONFIG["image_settings"]["width"]))
             self.image_height_var.set(img_settings.get("height", DEFAULT_CONFIG["image_settings"]["height"]))
@@ -808,7 +779,6 @@ class WelcomeImageConfigurator:
             self.image_bg_color_var.set(img_settings.get("background_color", DEFAULT_CONFIG["image_settings"]["background_color"]))
             self.bg_color_preview.config(bg=self.image_bg_color_var.get())
 
-            # Avatar settings
             avatar_settings = self.config.get("avatar_settings", DEFAULT_CONFIG["avatar_settings"].copy())
             self.avatar_size_var.set(avatar_settings.get("size", DEFAULT_CONFIG["avatar_settings"]["size"]))
 
@@ -835,33 +805,25 @@ class WelcomeImageConfigurator:
                         self.background_type_var.set("color")
                         self.config["image_settings"]["background_type"] = "color"
                         self.config["image_settings"]["background_image_path"] = ""
-                else: # No relative path specified, but type is image; treat as color
+                else: 
                     self.background_type_var.set("color")
                     self.config["image_settings"]["background_type"] = "color"
 
 
             self.channel_id_var.set(self.config.get("discord_settings", {}).get("channel_id", DEFAULT_CONFIG["discord_settings"]["channel_id"]))
 
-            # Reset selection state
             self.selected_item_on_canvas = None
             self.current_selection_type = None
             self.disable_text_properties_panel()
-            self.enable_disable_alignment_buttons(False) # Ensure alignment buttons are reset
+            self.enable_disable_alignment_buttons(False) 
 
-            self.update_canvas_dimensions() # After width/height vars are set
-            self.update_bg_controls_state() # After bg type var is set
-            self.redraw_canvas() # Crucial: redraws everything based on new config
+            self.update_canvas_dimensions() 
+            self.update_bg_controls_state() 
+            self.redraw_canvas() 
             messagebox.showinfo("Success", f"Configuration loaded from {filepath}")
 
         except json.JSONDecodeError as e:
             messagebox.showerror("Error", f"Failed to parse configuration file (invalid JSON): {e}")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load configuration: {e}")
-            # Optionally, revert to default config or previous stable state if load fails badly
-            # self.config = DEFAULT_CONFIG.copy() # Example: revert to default
-            # self.load_config_into_ui() # hypothetical method to re-sync UI to self.config
 
-if __name__ == '__main__':
-    root = tk.Tk()
-    app = WelcomeImageConfigurator(root)
-    root.mainloop()

@@ -1,4 +1,6 @@
 import discord
+from discord import Role, Member, Object
+from typing import Mapping
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import requests
 from io import BytesIO
@@ -81,29 +83,37 @@ class PrivateChannelCreatorClient(discord.Client):
             if not role:
                 role = await guild.create_role(name=team_name)
                 print(f"Created role: {team_name} in {guild.name}")
-
             overwrites = {
                 guild.default_role: discord.PermissionOverwrite(read_messages=False, connect=False),
                 role: discord.PermissionOverwrite(read_messages=True, send_messages=True, connect=True, speak=True)
             }
-            for exclude_role_obj in exclude_roles_objects:
-                overwrites[exclude_role_obj] = discord.PermissionOverwrite(read_messages=True, send_messages=True, connect=True, speak=True)
-
+            # Ensure overwrites dictionary has the correct types
+            typed_overwrites = {}
+            for k, v in overwrites.items():
+                if isinstance(k, (Role, Member, Object)):
+                    typed_overwrites[k] = v
+            
             if self.type == "text":
                 existing_text = discord.utils.get(guild.text_channels, name=team_name)
                 if not existing_text:
-                    channel = await guild.create_text_channel(team_name, overwrites=overwrites)
+                    channel = await guild.create_text_channel(team_name, overwrites=typed_overwrites)
                     print(f"Created private text channel: {team_name} in {guild.name}")
                 else:
-                    await existing_text.edit(overwrites=overwrites)
-                    print(f"Updated permissions for existing text channel: {team_name} in {guild.name}")
+                    await existing_text.edit(overwrites=typed_overwrites)
             elif self.type == "voice":
                 existing_voice = discord.utils.get(guild.voice_channels, name=team_name)
                 if not existing_voice:
-                    channel = await guild.create_voice_channel(team_name, overwrites=overwrites)
+                    channel = await guild.create_voice_channel(team_name, overwrites=typed_overwrites)
                     print(f"Created private voice channel: {team_name} in {guild.name}")
                 else:
-                    await existing_voice.edit(overwrites=overwrites)
+                    await existing_voice.edit(overwrites=typed_overwrites)
+                    print(f"Updated permissions for existing voice channel: {team_name} in {guild.name}")
+                existing_voice = discord.utils.get(guild.voice_channels, name=team_name)
+                if not existing_voice:
+                    channel = await guild.create_voice_channel(team_name, overwrites=typed_overwrites)
+                    print(f"Created private voice channel: {team_name} in {guild.name}")
+                else:
+                    await existing_voice.edit(overwrites=typed_overwrites)
                     print(f"Updated permissions for existing voice channel: {team_name} in {guild.name}")
 
         await self.close()
@@ -196,6 +206,7 @@ def create_welcome_image_from_config(member_avatar_url, member_username, config_
         font_color = text_elem["color"]
         text_x = text_elem["x"]
         text_y = text_elem["y"]
+        font_path_or_name = None
         try:
             font_path_or_name = get_font_path(font_family, config_dir_path)
             font = ImageFont.truetype(font_path_or_name, font_size) if font_path_or_name else ImageFont.load_default()
@@ -246,7 +257,10 @@ class WelcomerClient(discord.Client):
             raise
 
     async def on_ready(self):
-        print(f'Logged in as {self.user} (ID: {self.user.id})')
+        if self.user:
+            print(f'Logged in as {self.user} (ID: {self.user.id})')
+        else:
+            print('Logged in but user information is not available')
         print('------')
         if not self.config_data:
             print("CRITICAL: Bot started without valid configuration. Welcome messages will not work.")
@@ -258,6 +272,9 @@ class WelcomerClient(discord.Client):
                 return
 
             guild_to_simulate_in = self.guilds[0]
+            if self.user is None:
+                print("[SIMULATION] User is None. Cannot simulate join.")
+                return
             bot_as_member = guild_to_simulate_in.get_member(self.user.id)
 
             if bot_as_member:
@@ -270,7 +287,7 @@ class WelcomerClient(discord.Client):
 
 
     async def on_member_join(self, member: discord.Member):
-        is_simulation_for_self = (self.simulate_on_ready and member.id == self.user.id)
+        is_simulation_for_self = (self.simulate_on_ready and self.user is not None and member.id == self.user.id)
         if is_simulation_for_self:
             print(f"[SIMULATION] Processing simulated on_member_join for {member.display_name}")
 
@@ -299,27 +316,37 @@ class WelcomerClient(discord.Client):
 
 
         if welcome_channel:
-            if welcome_channel.guild != guild_of_join:
-                print(f"Warning: Configured welcome channel '{welcome_channel.name}' (ID: {welcome_channel_id}) "
+            channel_guild = getattr(welcome_channel, 'guild', None)
+            if channel_guild is not None and channel_guild != guild_of_join:
+                channel_name = getattr(welcome_channel, 'name', 'Unknown channel')
+                print(f"Warning: Configured welcome channel '{channel_name}' (ID: {welcome_channel_id}) "
                       f"is not in the guild '{guild_of_join.name}' where {member.display_name} joined. Skipping welcome message for this join.")
                 return
-
-            print(f"Member {member.display_name} joined server {member.guild.name}. Attempting to send welcome to channel {welcome_channel.name}.")
+            channel_name = getattr(welcome_channel, 'name', 'Unknown channel')
+            print(f"Member {member.display_name} joined server {member.guild.name}. Attempting to send welcome to channel {channel_name}.")
             try:
                 avatar_url = str(member.display_avatar.replace(format="png", size=256).url)
                 welcome_image_bytes = create_welcome_image_from_config(
                     avatar_url, member.display_name, self.config_data, self.config_dir_path
                 )
                 message_content = f"Welcome, {member.mention}!"
-                await welcome_channel.send(
-                    content=message_content,
-                    file=discord.File(welcome_image_bytes, filename="welcome.png")
-                )
-                print(f"Sent welcome message for {member.display_name} to {welcome_channel.name}.")
+                
+                if isinstance(welcome_channel, (discord.TextChannel, discord.Thread)):
+                    await welcome_channel.send(
+                        content=message_content,
+                        file=discord.File(fp=welcome_image_bytes, filename="welcome.png")
+                    )
+                    channel_name = getattr(welcome_channel, 'name', 'Unknown channel')
+                    print(f"Sent welcome message for {member.display_name} to {channel_name}.")
+                else:
+                    print(f"Error: Channel type {type(welcome_channel).__name__} doesn't support sending messages.")
             except Exception as e:
                 print(f"Failed to generate or send welcome image for {member.display_name}: {e}")
                 try:
-                    await welcome_channel.send(f"Welcome, {member.mention}! (Error generating welcome image)")
+                    if isinstance(welcome_channel, (discord.TextChannel, discord.Thread)):
+                        await welcome_channel.send(f"Welcome, {member.mention}! (Error generating welcome image)")
+                    else:
+                        print(f"Error: Channel type {type(welcome_channel).__name__} doesn't support sending messages.")
                 except Exception as e_fallback:
                     print(f"Failed to send fallback text message: {e_fallback}")
         else:
