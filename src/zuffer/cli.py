@@ -5,7 +5,7 @@ from .commands import embed
 from .commands import welcome, list
 
 @click.group()
-@click.version_option(package_name="zuffer") 
+@click.version_option(package_name="zuffer")
 def main():
     """Zuffer CLI - Discord Server Management Tool"""
     pass

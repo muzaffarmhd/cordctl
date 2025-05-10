@@ -57,7 +57,7 @@ class PrivateChannelCreatorClient(discord.Client):
         self.guildId = guild_id
         self.endN = end
         self.exclude = exclude
-        
+
     async def on_ready(self):
         print("I'm ", self.user)
         guild = self.get_guild(self.guildId)
@@ -65,7 +65,7 @@ class PrivateChannelCreatorClient(discord.Client):
             print(f"Error: Guild with ID {self.guildId} not found.")
             await self.close()
             return
-            
+
         exclude_roles_objects = []
         for role_name in self.exclude:
             role_obj = discord.utils.get(guild.roles, name=role_name)
@@ -76,7 +76,7 @@ class PrivateChannelCreatorClient(discord.Client):
 
         for i in range(self.startN, self.endN):
             team_name = f"{self.name}-{i}"
-            
+
             role = discord.utils.get(guild.roles, name=team_name)
             if not role:
                 role = await guild.create_role(name=team_name)
@@ -105,8 +105,9 @@ class PrivateChannelCreatorClient(discord.Client):
                 else:
                     await existing_voice.edit(overwrites=overwrites)
                     print(f"Updated permissions for existing voice channel: {team_name} in {guild.name}")
-        
+
         await self.close()
+
 
 def get_font_path(font_family_name, config_dir_path):
     font_filename = font_family_name.lower() + ".ttf"
@@ -153,6 +154,7 @@ def create_welcome_image_from_config(member_avatar_url, member_username, config_
     final_image = None
     if img_settings["background_type"] == "color":
         final_image = Image.new("RGBA", (width, height), img_settings["background_color"])
+        # print(final_image.size)
     elif img_settings["background_type"] == "image":
         bg_image_relative_path = img_settings["background_image_path"]
         if not bg_image_relative_path:
@@ -182,7 +184,7 @@ def create_welcome_image_from_config(member_avatar_url, member_username, config_
             mask = Image.new('L', av_size, 0)
             mask_draw = ImageDraw.Draw(mask)
             mask_draw.ellipse((0, 0) + av_size, fill=255)
-            final_image.paste(avatar_img, (avatar_settings["x"], avatar_settings["y"]), mask)
+            final_image.paste(avatar_img, (int(round(avatar_settings["x"])), int(round(avatar_settings["y"]))), mask)
         except requests.exceptions.RequestException as e:
             print(f"Error downloading avatar: {e}")
         except Exception as e:
@@ -199,6 +201,8 @@ def create_welcome_image_from_config(member_avatar_url, member_username, config_
             font = ImageFont.truetype(font_path_or_name, font_size) if font_path_or_name else ImageFont.load_default()
             if not font_path_or_name: print(f"Using default system font for '{font_family}' as it was not found.")
             draw.text((text_x, text_y), content, fill=font_color, font=font, anchor="lt")
+            # bbox = draw.textbbox((text_x, text_y), content, font=font, anchor="lt")
+            # print("width: ", bbox[2]-bbox[0])
         except IOError as e:
             print(f"Error loading font '{font_family}' (path: {font_path_or_name}): {e}. Using default font for this element.")
             try:
@@ -214,13 +218,13 @@ def create_welcome_image_from_config(member_avatar_url, member_username, config_
     return img_byte_arr
 
 class WelcomerClient(discord.Client):
-    def __init__(self, *, intents: discord.Intents, config_path: str, simulate_on_ready: bool = False): 
+    def __init__(self, *, intents: discord.Intents, config_path: str, simulate_on_ready: bool = False):
         super().__init__(intents=intents)
         self.config_path = os.path.abspath(config_path)
         self.config_dir_path = os.path.dirname(self.config_path)
         self.config_data = None
-        self.simulate_on_ready = simulate_on_ready 
-        self.has_simulated_join = False 
+        self.simulate_on_ready = simulate_on_ready
+        self.has_simulated_join = False
         self.load_bot_config()
 
     def load_bot_config(self):
@@ -248,12 +252,12 @@ class WelcomerClient(discord.Client):
             print("CRITICAL: Bot started without valid configuration. Welcome messages will not work.")
 
         if self.simulate_on_ready and not self.has_simulated_join and self.config_data:
-            self.has_simulated_join = True 
+            self.has_simulated_join = True
             if not self.guilds:
                 print("[SIMULATION] Bot is not in any guilds. Cannot simulate join.")
                 return
 
-            guild_to_simulate_in = self.guilds[0] 
+            guild_to_simulate_in = self.guilds[0]
             bot_as_member = guild_to_simulate_in.get_member(self.user.id)
 
             if bot_as_member:
@@ -288,9 +292,9 @@ class WelcomerClient(discord.Client):
             return
 
         guild_of_join = member.guild
-        welcome_channel = guild_of_join.get_channel(welcome_channel_id) 
+        welcome_channel = guild_of_join.get_channel(welcome_channel_id)
 
-        if not welcome_channel: 
+        if not welcome_channel:
              welcome_channel = self.get_channel(welcome_channel_id)
 
 
@@ -322,7 +326,7 @@ class WelcomerClient(discord.Client):
             print(f"Welcome channel with ID {welcome_channel_id} not found in guild {member.guild.name} or globally for bot.")
 
 
-DEFAULT_CONFIG = { 
+DEFAULT_CONFIG = {
     "image_settings": {
         "width": 700, "height": 250,
         "background_type": "color", "background_color": "#36393f",
