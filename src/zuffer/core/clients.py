@@ -2,6 +2,7 @@ import discord
 import json
 import os
 import requests
+import random
 from io import BytesIO
 from discord import Role, Member, Object
 from typing import Mapping
@@ -243,3 +244,41 @@ class WelcomerClient(discord.Client):
         else:
             print(f"Welcome channel with ID {welcome_channel_id} not found in guild {member.guild.name} or globally for bot.")
 
+class MusicClient(discord.Client):
+    def __init__(self, path_to_playlist, intents: discord.Intents):
+        super().__init__(intents=intents)
+        self.voice_recorders = {}
+        self.playlist = path_to_playlist
+
+    async def on_ready(self):
+        if (self.user is not None):
+            print(f"Logged in as {self.user} (ID: {self.user.id})")
+            print("------")
+            await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Music"))
+    async def on_message(self, message: discord.Message):
+        if message.author == self.user:
+            return
+        if message.content.startswith("!join"):
+            if isinstance(message.author, discord.Member) and message.author.voice and message.author.voice.channel:
+                voice_channel = message.author.voice.channel
+                try:
+                    voice_client = await voice_channel.connect()
+                    await message.channel.send(f"Joined {voice_channel.name}!")
+                    
+                    if (os.path.isdir(self.playlist)):
+                        files = [os.path.join(self.playlist, f) for f in os.listdir(self.playlist) if f.endswith(".mp3")]
+                        def after_callback(error):
+                            if error:
+                                print(f'Player error: {error}')
+                            else:
+                                audio = discord.FFmpegPCMAudio(random.choice(files))
+                                voice_client.play(audio, after=after_callback)
+                        
+                        audio_source = discord.FFmpegPCMAudio(random.choice(files))  
+                        voice_client.play(audio_source, after=after_callback)
+                    
+                    await message.channel.send("Now playing music on loop!")
+                except Exception as e:
+                    await message.channel.send(f"Error joining voice channel: {str(e)}")
+            else:
+                await message.channel.send("You need to be in a voice channel first!")
