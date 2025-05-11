@@ -2,7 +2,7 @@ import click
 from .commands import login 
 from .commands import create_channels
 from .commands import embed
-from .commands import welcome, list, play_music
+from .commands import welcome, list, play_music, handle_roles
 
 @click.group(invoke_without_command=True)
 @click.version_option(package_name="zuffer")
@@ -23,3 +23,4 @@ main.add_command(create_channels.create_private)
 main.add_command(welcome.welcome_group)
 main.add_command(list.list_command)
 main.add_command(play_music.play_music)
+main.add_command(handle_roles.handle_roles)

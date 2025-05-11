@@ -282,3 +282,85 @@ class MusicClient(discord.Client):
                     await message.channel.send(f"Error joining voice channel: {str(e)}")
             else:
                 await message.channel.send("You need to be in a voice channel first!")
+
+class RoleHandlerClient(discord.Client):
+    def __init__(self, *, intents: discord.Intents, unique: bool = False, **kwargs):
+        super().__init__(intents=intents, **kwargs)
+        self.unique = unique
+        self.tree = discord.app_commands.CommandTree(self)
+        
+    async def setup_hook(self):
+        @self.tree.command(name="claim", description="Claim a role by its name")
+        async def claim(interaction: discord.Interaction, identifier: str):
+            await self._handle_claim(interaction, identifier)
+        
+        @self.tree.command(name="unclaim", description="Drop a role you have claimed")
+        async def unclaim(interaction: discord.Interaction, identifier: str):
+            await self._handle_unclaim(interaction, identifier)
+            
+        await self.tree.sync()
+    
+    async def on_ready(self):
+        if (self.user is not None):
+            print(f"Logged in as {self.user} (ID: {self.user.id})")
+            print("------")
+    
+    async def _handle_claim(self, interaction: discord.Interaction, identifier: str):
+        if not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
+            return
+        if interaction.guild is not None:
+            role = discord.utils.get(interaction.guild.roles, name=identifier)
+            if not role:
+                await interaction.response.send_message(f"Role '{identifier}' not found.", ephemeral=True)
+                return
+        else:
+            await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
+            return
+        
+        if self.unique and len(interaction.user.roles) > 1:  
+            for user_role in interaction.user.roles:
+                if user_role.name != "@everyone" and user_role != role:
+                    await interaction.response.send_message(
+                        f"You already have the role '{user_role.name}'. "
+                        f"Use `/unclaim {user_role.name}` to remove it first.", 
+                        ephemeral=True
+                    )
+                    return
+        if role in interaction.user.roles:
+            await interaction.response.send_message(f"You already have the '{identifier}' role.", ephemeral=True)
+            return
+            
+        try:
+            await interaction.user.add_roles(role)
+            await interaction.response.send_message(f"Successfully claimed the '{identifier}' role!", ephemeral=True)
+        except discord.Forbidden:
+            await interaction.response.send_message("I don't have permission to assign that role.", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)
+    
+    async def _handle_unclaim(self, interaction: discord.Interaction, identifier: str):
+        if not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
+            return
+        
+        if interaction.guild is None:
+            await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
+            return
+            
+        role = discord.utils.get(interaction.guild.roles, name=identifier)
+        if not role:
+            await interaction.response.send_message(f"Role '{identifier}' not found.", ephemeral=True)
+            return
+        
+        if role not in interaction.user.roles:
+            await interaction.response.send_message(f"You don't have the '{identifier}' role.", ephemeral=True)
+            return
+            
+        try:
+            await interaction.user.remove_roles(role)
+            await interaction.response.send_message(f"Successfully removed the '{identifier}' role!", ephemeral=True)
+        except discord.Forbidden:
+            await interaction.response.send_message("I don't have permission to remove that role.", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)
