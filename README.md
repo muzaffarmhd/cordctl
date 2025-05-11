@@ -13,6 +13,24 @@ Zuffer is currently under active development. While many core features are funct
 
 ---
 
+## Prerequisites
+
+Before installing Zuffer CLI, please ensure you have the following system dependencies:
+
+*   **Python:** Version 3.8 or higher.
+*   **pip:** Python package installer (usually comes with Python).
+*   **FFmpeg (for music features):**
+    *   Zuffer's music bot functionality requires FFmpeg to be installed and accessible in your system's PATH.
+    *   **Linux (Debian/Ubuntu):** `sudo apt update && sudo apt install ffmpeg`
+    *   **Linux (Fedora):** `sudo dnf install ffmpeg`
+    *   **macOS (Homebrew):** `brew install ffmpeg`
+    *   **Windows:** Download FFmpeg from [the official FFmpeg website](https://ffmpeg.org/download.html) and add the `bin` directory to your system's PATH.
+*   **Tkinter (for GUI elements):**
+    *   Tkinter is used for the graphical configuration tools (e.g., Welcomer GUI, Embed Builder).
+    *   **Windows & macOS:** Usually included with Python.
+    *   **Linux:** You might need to install it separately. For example, on Debian/Ubuntu: `sudo apt update && sudo apt install python3-tk`. On Fedora: `sudo dnf install python3-tkinter`.
+
+
 ## Table of Contents
 
 *   [About](#about)
