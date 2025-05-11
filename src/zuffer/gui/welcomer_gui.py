@@ -528,11 +528,7 @@ class WelcomeImageConfigurator:
         self._text_content_trace_id = self.current_text_content_var.trace_add("write", self.on_selected_text_property_change)
         self._font_size_trace_id = self.current_text_font_size_var.trace_add("write", self.on_selected_text_property_change)
         self._font_family_trace_id = self.current_text_font_family_var.trace_add("write", self.on_selected_text_property_change)
-        # if text_element_dict and text_element_dict.get("content"):
-        #     self.selected_item_on_canvas = text_element_dict
-        #     self.current_selection_type = "text"
-        #     width, height = self._get_selected_item_dimensions()
-        #     print(f"[DEBUG] Selected text '{text_element_dict['content']}' | Width: {width}px, Height: {height}px")
+        
     def disable_text_properties_panel(self):
         if hasattr(self, "_text_content_trace_id") and self._text_content_trace_id:
             self.current_text_content_var.trace_vdelete("w", self._text_content_trace_id)
@@ -614,55 +610,6 @@ class WelcomeImageConfigurator:
                 print(f"Error measuring text in _get_selected_item_dimensions: {e}")
                 return 20, 10 
         return 0, 0
-
-    # def _get_selected_item_dimensions(self):
-    #     if not self.selected_item_on_canvas or not self.current_selection_type:
-    #         return 0, 0
-
-    #     item_dict = self.selected_item_on_canvas
-    #     if self.current_selection_type == "avatar":
-    #         size = item_dict.get("size", DEFAULT_CONFIG["avatar_settings"]["size"])
-    #         return size, size
-
-    #     elif self.current_selection_type == "text":
-    #         font_size = item_dict["font_size"]
-    #         font_family = item_dict["font_family"]
-    #         content = item_dict["content"]
-
-    #         # Use updated UI values if available
-    #         if hasattr(self, 'current_text_font_size_var'):
-    #             try:
-    #                 ui_font_size = self.current_text_font_size_var.get()
-    #                 if ui_font_size > 0:
-    #                     font_size = ui_font_size
-    #                 font_family = self.current_text_font_family_var.get()
-    #                 content = self.current_text_content_var.get()
-    #             except tk.TclError:
-    #                 pass  # Keep using config values
-
-    #         try:
-    #             from PIL import ImageFont, ImageDraw, Image
-
-    #             # Ensure you have access to the config directory for font resolution
-    #             # config_dir_path = self.current_config_dir if hasattr(self, 'current_config_dir') else "."
-
-    #             # font_path = get_font_path(font_family, config_dir_path)
-    #             font_path = "arial.ttf"
-    #             pil_font = ImageFont.truetype(font_path, font_size) if font_path else ImageFont.load_default()
-
-    #             dummy_img = Image.new("RGBA", (1, 1))
-    #             draw = ImageDraw.Draw(dummy_img)
-    #             bbox = draw.textbbox((0, 0), content, font=pil_font, anchor="lt")
-
-    #             width = bbox[2] - bbox[0]
-    #             height = bbox[3] - bbox[1]
-    #             return width, height
-
-    #         except Exception as e:
-    #             print(f"Error measuring text with Pillow in _get_selected_item_dimensions: {e}")
-    #             return 20, 10  # Safe fallback
-
-    #     return 0, 0
 
     def _align_item(self, set_x=None, set_y=None, center_h=False, center_v=False, align_r=False, align_b=False):
         if not self.selected_item_on_canvas: return

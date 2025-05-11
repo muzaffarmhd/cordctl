@@ -30,7 +30,8 @@ def run_welcomer_bot_command(config_path, simulate_join):
 
     try:
         client = WelcomerClient(intents=intents, config_path=config_path, simulate_on_ready=simulate_join)
-        client.run(bot_token)
+        if bot_token is not None:
+            client.run(bot_token)
     except (FileNotFoundError, json.JSONDecodeError) as e:
         click.echo(f"Error during bot initialization: {e}. Please check your configuration path and file.", err=True)
     except discord.errors.LoginFailure:

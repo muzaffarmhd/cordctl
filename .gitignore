@@ -29,6 +29,7 @@ ENV/
 assets/
 .env
 .venv
+.ropeproject
 
 # IDE
 .idea/
