@@ -6,7 +6,7 @@ from tkinter import filedialog
 import json
 import datetime
 from ..core import auth, discord_api
-from zuffer.gui.embed_gui import EmbedBuilder
+from cordctl.gui.embed_gui import EmbedBuilder
 
 def build_embed_gui(callback):
     app = EmbedBuilder(callback)

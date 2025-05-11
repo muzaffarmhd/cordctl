@@ -282,6 +282,16 @@ class MusicClient(discord.Client):
                     await message.channel.send(f"Error joining voice channel: {str(e)}")
             else:
                 await message.channel.send("You need to be in a voice channel first!")
+        elif message.content.startswith("!leave"):
+            if message.guild is not None:
+                voice_client = message.guild.voice_client
+                if voice_client:
+                    if isinstance(voice_client, discord.VoiceClient) and voice_client.is_playing():
+                        voice_client.stop()
+                    await voice_client.disconnect(force=False)
+                    await message.channel.send("Left the voice channel!")
+                else:
+                    await message.channel.send("I'm not in a voice channel!")
 
 class RoleHandlerClient(discord.Client):
     def __init__(self, *, intents: discord.Intents, unique: bool = False, **kwargs):

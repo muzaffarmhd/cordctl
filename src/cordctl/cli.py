@@ -5,10 +5,10 @@ from .commands import embed
 from .commands import welcome, list, play_music, handle_roles
 
 @click.group(invoke_without_command=True)
-@click.version_option(package_name="zuffer")
+@click.version_option(package_name="cordctl")
 @click.pass_context
 def main(ctx: click.Context):
-    """Zuffer CLI - Discord Server Management Tool"""
+    """cordctl CLI - Discord Server Management Tool"""
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
         ctx.exit(0)

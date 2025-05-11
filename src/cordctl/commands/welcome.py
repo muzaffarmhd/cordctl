@@ -1,6 +1,6 @@
 import click
 import tkinter as tk
-from zuffer.gui.welcomer_gui import WelcomeImageConfigurator
+from cordctl.gui.welcomer_gui import WelcomeImageConfigurator
 import discord
 import json
 from ..core import auth, utils, discord_api

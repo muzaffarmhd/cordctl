@@ -3,7 +3,7 @@ import sys
 
 import keyring.errors
 
-SERVICE_NAME = "zuffer"
+SERVICE_NAME = "cordctl"
 TOKEN_USERNAME = "discord_bot_token"
 CLIENT_USER_NAME = "discord_client_id"
 
@@ -36,7 +36,7 @@ def delete_token():
 def store_client_id(client_id):
     try:
         keyring.set_password(SERVICE_NAME, CLIENT_USER_NAME, client_id)
-        print("Client configured successfully. Please run `zuffer refresh`", file=sys.stderr)
+        print("Client configured successfully. Please run `cordctl refresh`", file=sys.stderr)
     except keyring.errors.KeyringError as e:
         print(f"Error storing token: {e}", file=sys.stderr)
 

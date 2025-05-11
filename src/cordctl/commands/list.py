@@ -12,4 +12,4 @@ def list_command():
             for guild, id in guilds:
                 print(f"{guild}")
     else:
-        click.echo("Please run command:`zuffer refresh` to refresh the bot!")
+        click.echo("Please run command:`cordctl refresh` to refresh the bot!")

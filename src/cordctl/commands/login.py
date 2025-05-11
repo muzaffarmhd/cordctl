@@ -26,7 +26,7 @@ def reset():
             click.echo("You are not logged in. Nothing to reset!")
             return
         if auth.delete():
-            click.echo("Token has been successfully reset. You can now use `zuffer login` again!")
+            click.echo("Token has been successfully reset. You can now use `cordctl login` again!")
         else:
             click.echo("An error occured!")
     else:
