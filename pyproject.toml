@@ -21,6 +21,7 @@ dependencies = [
   "discord.py>=2.0.0",
   "questionary>=1.0.0",
   "keyring>=23.0.0",
+  "pytest"
 ]
 
 [project.scripts]
