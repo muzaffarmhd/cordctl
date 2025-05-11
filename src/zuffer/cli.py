@@ -4,11 +4,14 @@ from .commands import create_channels
 from .commands import embed
 from .commands import welcome, list
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.version_option(package_name="zuffer")
-def main():
+@click.pass_context
+def main(ctx: click.Context):
     """Zuffer CLI - Discord Server Management Tool"""
-    pass
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+        ctx.exit(0)
 
 
 main.add_command(login.login)

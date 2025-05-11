@@ -24,6 +24,7 @@ wheels/
 arial.ttf
 # Virtual Environment
 venv/
+bin/
 env/
 ENV/
 assets/
