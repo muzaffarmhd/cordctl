@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zuffer"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Md Muzaffar", email="mdmuxaffar@gmail.com" },
 ]
@@ -23,9 +23,10 @@ dependencies = [
   "questionary>=1.0.0",
   "keyring>=23.0.0",
   "pytest",
-  "Pillow>=9.0.0",  
+  "Pillow>=11.1.0",  
   "requests>=2.20.0", 
   "aiohttp>=3.8.0",    
+  "PyNaCl>=1.5.0"
 ]
 
 [project.scripts]
